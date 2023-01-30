@@ -103,7 +103,7 @@ then
 				#echo "Current Balance: $solo_budget" >> $global_logfile
 			else
 				let solo_budget=solo_budget-0
-				echo "You lost all your money." >> $global_logfile
+				echo "You lost all your money after $solo_betsTotal bets." >> $global_logfile
 				break
 			fi
 		fi
