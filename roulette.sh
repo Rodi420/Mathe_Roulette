@@ -71,10 +71,15 @@ then
 	
 	while [[ $global_turns>0 ]] 
 	do
+		#reduce turns by 1
+		let global_turns=global_turns-1
+		#increase total bets counter to display at end
+		let solo_betsTotal=solo_betsTotal+1
+
 		#get winning number
 		solo_winning=$(( $RANDOM % 36))
 		#write log
-		echo "Gewinnerzahl: $solo_winning" >> $global_logfile
+		#echo "Gewinnerzahl: $solo_winning" >> $global_logfile
 
 		if [[ $solo_winning = $solo_choice ]]
 		then
@@ -83,31 +88,28 @@ then
 			let solo_budget=solo_budget+$((global_wager * 35))
 			#increase won counter to display at end
 			let solo_betsWon=solo_betsWon+1
+			#write log
+			echo "Turn $solo_betsTotal" >> $global_logfile
 			echo "You Won: $((global_wager * 35))" >> $global_logfile
 			echo "Current Balance: $solo_budget" >> $global_logfile
-			#remove wager from budget
-			#let global_budget=global_budget-global_wager
-			#echo "Wager Depleted from Budget" >> $global_logfile
+			echo "$global_delimiter" >> $global_logfile
 
 		#if budget reaches 0 stop the game
 		else
 			if  [[ $solo_budget > 0 ]]
 			then
 				let solo_budget=solo_budget-global_wager
-				echo "Wager Depleted from Budget" >> $global_logfile
-				echo "Current Balance: $solo_budget" >> $global_logfile
+				#echo "Wager Depleted from Budget" >> $global_logfile
+				#echo "Current Balance: $solo_budget" >> $global_logfile
 			else
 				let solo_budget=solo_budget-0
 				echo "You lost all your money." >> $global_logfile
 				break
 			fi
 		fi
-		#reduce turns by 1
-		let global_turns=global_turns-1
-		#increase total bets counter to display at end
-		let solo_betsTotal=solo_betsTotal+1
+		
 		#write log
-		echo "$global_delimiter" >> $global_logfile
+		#echo "$global_delimiter" >> $global_logfile
 	done
 	#calculate percentage since bash cant do floating arithemetics
 	
