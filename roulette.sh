@@ -9,7 +9,8 @@
 #global_turns=1000
 global_logfile="roulette_logs/roulette_$(date +%Y-%m-%d_%H%M%S).log"
 global_delimiter="-"
-#global_delimiter2="_"
+source ./roulette_perfTest.sh
+
 
 
 if [[ ! -d roulette_logs ]]
@@ -39,10 +40,32 @@ echo "global_wager = $global_wager" >> $global_logfile
 echo "global_turns = $global_turns" >> $global_logfile
 echo "$global_delimiter" >> $global_logfile
 clear
+
+#performance test
+echo -e "Willst du einen Performance Test durchführen?\n1. Ja\n2. Nein"
+read -p "Eingabe: " global_perfTest
+
+if [[ $global_perfTest -eq 1 ]]
+then
+	#do perf test
+	func_perfTest
+	global_perfTestDone=1
+else
+	echo "Performance Test not done. Resuming..." >> $global_logfile
+	global_perfTestDone=0
+fi
+
 if [[ $global_turns -gt 10000 ]]
 then
 	echo -e "Hinweis:\nDu hast mehr als 10'000 Spiele ausgewählt.\nEs kann mehrere Minuten dauern bis das Programm fertig ist!"
-
+	#add estimated time
+	if [[ $global_perfTestDone -eq 1 ]]
+	then
+		echo -e "Es wurde ein Performance Test durchgeführt."
+		echo -e "Geschätzte Dauer der Durchführung dieses Programmes: $(($global_turns/$global_perfScore))s"
+	else
+	 	echo -e "Es wurde kein Performance Test durchgeführt."
+	fi
 else
 	echo -e "Less than 10000 Turns selected. Proceed allowed." >> $global_logfile
 
