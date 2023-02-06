@@ -20,11 +20,11 @@ if [[ ! -d roulette_logs ]]
 then
     mkdir roulette_logs
 	echo "$global_delimiter" >> $global_logfile
-    echo "Info: Logs Directory does not exist. Creating it..." >> $global_logfile
+    echo "info: logs directory does not exist. creating it..." >> $global_logfile
 #if it exists write to log
 else
 	echo "$global_delimiter" >> $global_logfile
-	echo "Info: Logs Directory exists already." >> $global_logfile
+	echo "info: logs directory exists already." >> $global_logfile
 fi
 
 #start
@@ -38,7 +38,7 @@ read -p "Wie viel mal willst du spielen? " global_turns
 
 #write log
 echo "$global_delimiter" >> $global_logfile
-echo "Chosen Values:" >> $global_logfile
+echo "chosen values:" >> $global_logfile
 echo "global_budget = $global_budget" >> $global_logfile
 echo "global_wager = $global_wager" >> $global_logfile
 echo "global_turns = $global_turns" >> $global_logfile
@@ -54,9 +54,9 @@ then
 	#do perf test
 	func_perfTest
 	global_perfTestDone=1
-	echo "Performance Test done. Resuming..." >> $global_logfile
+	echo "performance Test done. Resuming..." >> $global_logfile
 else
-	echo "Performance Test not done. Resuming..." >> $global_logfile
+	echo "performance Test not done. Resuming..." >> $global_logfile
 	#this variable value is called nowhere**
 	global_perfTestDone=0
 fi
@@ -64,9 +64,9 @@ fi
 if [[ $global_turns -gt 10000 ]]
 then
 	echo -e "Hinweis:\nDu hast mehr als 10'000 Spiele ausgewählt.\nEs kann länger dauern bis das Programm fertig ist!"
-	echo -e "More than 10000 Turns selected. Proceed with caution." >> $global_logfile
+	echo -e "more than 10000 Turns selected. Proceed with caution." >> $global_logfile
 else
-	echo -e "Less than 10000 Turns selected. Proceed allowed." >> $global_logfile
+	echo -e "less than 10000 Turns selected. Proceed allowed." >> $global_logfile
 fi
 if [[ $global_perfTestDone -eq 1 ]]
 then
@@ -97,7 +97,7 @@ then
 	solo_betsTotal=0
 	solo_runtimeStart=$(date +%s%N)
 	#write log
-	echo "Mode chosen: $main_mode" >> $global_logfile
+	echo "mode chosen: $main_mode" >> $global_logfile
 	echo "solo_budget = $solo_budget" >> $global_logfile
 	echo "$global_delimiter" >> $global_logfile
 	
@@ -110,9 +110,6 @@ then
 
 		#get winning number
 		solo_winning=$(( $RANDOM % 36))
-		#write log
-		#echo "Gewinnerzahl: $solo_winning" >> $global_logfile
-
 		if [[ $solo_winning = $solo_choice ]]
 		then
 			
@@ -121,9 +118,11 @@ then
 			#increase won counter to display at end
 			let solo_betsWon=solo_betsWon+1
 			#write log
-			echo "Turn $solo_betsTotal" >> $global_logfile
-			echo "You Won: $((global_wager * 35))" >> $global_logfile
-			echo "Current Balance: $solo_budget" >> $global_logfile
+			#echo "turn $solo_betsTotal" >> $global_logfile
+			#echo "won: $((global_wager * 35))" >> $global_logfile
+			#echo "balance: $solo_budget" >> $global_logfile
+			#optimized version of write log
+			echo "turn $solo_betsTotal / won: $((global_wager * 35)) / balance: $solo_budget" >> $global_logfile
 			echo "$global_delimiter" >> $global_logfile
 
 		#if budget reaches 0 stop the game
@@ -131,17 +130,12 @@ then
 			if  [[ $solo_budget > 0 ]]
 			then
 				let solo_budget=solo_budget-global_wager
-				#echo "Wager Depleted from Budget" >> $global_logfile
-				#echo "Current Balance: $solo_budget" >> $global_logfile
 			else
 				let solo_budget=solo_budget-0
-				echo "You lost all your money after $solo_betsTotal bets." >> $global_logfile
+				echo "you lost all your money after $solo_betsTotal bets." >> $global_logfile
 				break
 			fi
 		fi
-		
-		#write log
-		#echo "$global_delimiter" >> $global_logfile
 	done
 	#calculate percentage since bash cant do floating arithemetics
 	

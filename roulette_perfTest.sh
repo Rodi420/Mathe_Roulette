@@ -27,11 +27,13 @@ func_perfTest (){
 			
 			#add winnings
 			let perf_budget=perf_budget+$((perf_wager * 35))
-			#increase won counter to display at end
-			#let perf_betsWon=perf_betsWon+1
-			echo "Turn $perf_betsTotal" >> $perf_logfile
-			echo "You Won: $((perf_wager * 35))" >> $perf_logfile
-			echo "Current Balance: $perf_budget" >> $perf_logfile
+			#increase won counter to display at end (doenst display here)
+			let perf_betsWon=perf_betsWon+1
+			#echo "Turn $perf_betsTotal" >> $perf_logfile
+			#echo "You Won: $((perf_wager * 35))" >> $perf_logfile
+			#echo "Current Balance: $perf_budget" >> $perf_logfile
+            #optimized version of log write
+            echo "turn $perf_betsTotal / won: $((perf_wager * 35)) / balance: $perf_budget" >> $perf_logfile
 			echo "$perf_delimiter" >> $perf_logfile
 			
 
@@ -41,19 +43,11 @@ func_perfTest (){
 			then
 				let perf_budget=perf_budget-perf_wager
 			else
+            #its engineered to never run out of money but for consistency sake
 				let perf_budget=perf_budget-0
 				break
 			fi
 		fi
-        #perf_runtimeEnd=$(date +%s%N)
-        #perf_runtimeDiff=$(($perf_runtimeEnd - $perf_runtimeStart))
-        #if [[ $perf_runtimeDiff -ge 1000000000 ]]
-        #then
-        #    global_perfScore=$perf_betsTotal
-        #    echo "Your performance Score is: $perf_betsTotal bets per second" >> $perf_logfile
-        #    break
-        #fi
-
     done
     perf_runtimeEnd=$(date +%s%N)
     perf_runtimeDiff=$(($perf_runtimeEnd - $perf_runtimeStart))
