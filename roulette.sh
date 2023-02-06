@@ -50,6 +50,7 @@ then
 	#do perf test
 	func_perfTest
 	global_perfTestDone=1
+	echo "Performance Test done. Resuming..." >> $global_logfile
 else
 	echo "Performance Test not done. Resuming..." >> $global_logfile
 	global_perfTestDone=0
@@ -57,12 +58,16 @@ fi
 
 if [[ $global_turns -gt 10000 ]]
 then
-	echo -e "Hinweis:\nDu hast mehr als 10'000 Spiele ausgewählt.\nEs kann mehrere Minuten dauern bis das Programm fertig ist!"
+	echo -e "Hinweis:\nDu hast mehr als 10'000 Spiele ausgewählt.\nEs kann länger dauern bis das Programm fertig ist!"
 	#add estimated time
 	if [[ $global_perfTestDone -eq 1 ]]
 	then
-		echo -e "Es wurde ein Performance Test durchgeführt."
-		echo -e "Geschätzte Dauer der Durchführung dieses Programmes: $(($global_turns/$global_perfScore))s"
+		echo -e "\nEs wurde ein Performance Test durchgeführt."
+		global_perfEta=$(
+			awk "BEGIN { print ($global_turns/$perf_betsPerSec) }"
+		)
+		echo -e "Geschätzte Dauer der Durchführung dieses Programmes: ${global_perfEta}s"
+		echo -e "ETA: ${global_perfEta}s" >> $global_logfile
 	else
 	 	echo -e "Es wurde kein Performance Test durchgeführt."
 	fi
@@ -73,7 +78,7 @@ fi
 
 
 echo -e "\nWähle ein Spielmodus\n1. Einzelnummern\n2. Even\n3. Odd\n4. Row"
-read -n 1 -p "Eingabe: " main_mode
+read -p "Eingabe: " main_mode
 
 if [[ $main_mode -eq 1 ]]
 then
@@ -86,7 +91,7 @@ then
 	solo_budget=$global_budget
 	solo_betsWon=0
 	solo_betsTotal=0
-	solo_runtimeStart=$(date +%s)
+	solo_runtimeStart=$(date +%s%N)
 	#write log
 	echo "Mode chosen: $main_mode" >> $global_logfile
 	echo "solo_budget = $solo_budget" >> $global_logfile
@@ -139,18 +144,21 @@ then
 	solo_betsPrct=$(
 		awk "BEGIN {print (100/$solo_betsTotal)*$solo_betsWon}"
 	)
-	solo_runtimeEnd=$(date +%s)
+	solo_runtimeEnd=$(date +%s%N)
 	solo_runtimeDiff=$(($solo_runtimeEnd - $solo_runtimeStart))
+	solo_runtimeDiffSec=$(
+		awk "BEGIN { print ($solo_runtimeDiff/1000000000) }"
+	)
 	#show results
-	echo "Final Balance: $solo_budget"
-	echo "Profit Made: $(($solo_budget-$global_budget))"
-	echo "You won $solo_betsWon out of $solo_betsTotal bets. (${solo_betsPrct}%)"
-	echo "Program finished after ${solo_runtimeDiff}s"
+	echo "Guthaben: $solo_budget"
+	echo "Gewinne: $(($solo_budget-$global_budget))"
+	echo "Du hast $solo_betsWon von $solo_betsTotal Wetten gewonnen. (${solo_betsPrct}%)"
+	echo "Programm wurde in ${solo_runtimeDiffSec}s ausgeführt"
 	#write log
 	echo "Final Balance: $solo_budget" >> $global_logfile
 	echo "Profit Made: $(($solo_budget-$global_budget))" >> $global_logfile
 	echo "You won $solo_betsWon out of $solo_betsTotal bets. (${solo_betsPrct}%)" >> $global_logfile
-	echo "Program finished after $(($solo_runtimeStart-$solo_runtimeEnd))s" >> $global_logfile
+	echo "Program finished after ${solo_runtimeDiffSec}s" >> $global_logfile
 elif [[ $main_mode -eq 2 ]] 
 then
 	echo "even"

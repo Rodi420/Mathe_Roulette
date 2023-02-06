@@ -8,7 +8,8 @@ func_perfTest (){
     perf_logfile="roulette_logs/roulette_perfTest_$(date +%Y-%m-%d_%H%M%S).log"
     perf_budget=1000000000
     perf_wager=1
-    perf_turns=10000000
+    #test with 10000 turns, runtime method not working as intended
+    perf_turns=10000
     perf_delimiter="-"
     perf_betsTotal=0
     perf_choice=0
@@ -44,18 +45,28 @@ func_perfTest (){
 				break
 			fi
 		fi
-        perf_runtimeEnd=$(date +%s%N)
-        perf_runtimeDiff=$(($perf_runtimeEnd - $perf_runtimeStart))
-        if [[ $perf_runtimeDiff -gt 1000000000 ]]
-        then
-            global_perfScore=$perf_betsTotal
-            echo "Your performance Score is: $perf_betsTotal bets per second" >> $perf_logfile
-            break
-        else
-            perf_dummyVar=0
-        fi
+        #perf_runtimeEnd=$(date +%s%N)
+        #perf_runtimeDiff=$(($perf_runtimeEnd - $perf_runtimeStart))
+        #if [[ $perf_runtimeDiff -ge 1000000000 ]]
+        #then
+        #    global_perfScore=$perf_betsTotal
+        #    echo "Your performance Score is: $perf_betsTotal bets per second" >> $perf_logfile
+        #    break
+        #fi
 
     done
+    perf_runtimeEnd=$(date +%s%N)
+    perf_runtimeDiff=$(($perf_runtimeEnd - $perf_runtimeStart))
+    
+    perf_runtimeDiffSec=$(
+		awk "BEGIN { print ($perf_runtimeDiff/1000000000) }"
+	)
+    #echo "Your performance Score is: $perf_betsTotal bets per second" >> $perf_logfile
+    echo "Your Computer took ${perf_runtimeDiff}ns or ${perf_runtimeDiffSec}s to finish 10000 Turns" >> $perf_logfile
+    perf_betsPerSec=$(
+		awk "BEGIN { print (10000/$perf_runtimeDiffSec) }"
+	)
+    echo "Your Performance score is: $perf_betsPerSec bets per second" >> $perf_logfile
 }
 
 
