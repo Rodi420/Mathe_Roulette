@@ -5,7 +5,7 @@
 
 
 func_perfTest (){
-    perf_logfile="roulette_logs/roulette_perfTest_$(date +%Y-%m-%d_%H%M%S).log"
+    #perf_logfile="roulette_logs/roulette_perfTest_$(date +%Y-%m-%d_%H%M%S).log"
     perf_budget=1000000000
     perf_wager=1
     #test with 10000 turns, runtime method not working as intended
