@@ -12,12 +12,13 @@ global_delimiter="-"
 source ./roulette_perfTest.sh
 
 
-
+#make log directory if it doesnt exist
 if [[ ! -d roulette_logs ]]
 then
     mkdir roulette_logs
 	echo "$global_delimiter" >> $global_logfile
     echo "Info: Logs Directory does not exist. Creating it..." >> $global_logfile
+#if it exists write to log
 else
 	echo "$global_delimiter" >> $global_logfile
 	echo "Info: Logs Directory exists already." >> $global_logfile
@@ -53,6 +54,7 @@ then
 	echo "Performance Test done. Resuming..." >> $global_logfile
 else
 	echo "Performance Test not done. Resuming..." >> $global_logfile
+	#this variable value is called nowhere**
 	global_perfTestDone=0
 fi
 
@@ -63,6 +65,7 @@ then
 	if [[ $global_perfTestDone -eq 1 ]]
 	then
 		echo -e "\nEs wurde ein Performance Test durchgeführt."
+		#calculate eta runtime
 		global_perfEta=$(
 			awk "BEGIN { print ($global_turns/$perf_betsPerSec) }"
 		)
@@ -144,10 +147,17 @@ then
 	solo_betsPrct=$(
 		awk "BEGIN {print (100/$solo_betsTotal)*$solo_betsWon}"
 	)
+	#end runtime
 	solo_runtimeEnd=$(date +%s%N)
+	#difference of start and end
 	solo_runtimeDiff=$(($solo_runtimeEnd - $solo_runtimeStart))
+	#convert to seconds
 	solo_runtimeDiffSec=$(
 		awk "BEGIN { print ($solo_runtimeDiff/1000000000) }"
+	)
+	#difference from eta to runtime
+	solo_runtimeToEta=$(
+		awk "BEGIN { print ($solo_runtimeDiffSec-$global_perfEta) }"
 	)
 	#show results
 	echo "Guthaben: $solo_budget"
@@ -159,6 +169,7 @@ then
 	echo "Profit Made: $(($solo_budget-$global_budget))" >> $global_logfile
 	echo "You won $solo_betsWon out of $solo_betsTotal bets. (${solo_betsPrct}%)" >> $global_logfile
 	echo "Program finished after ${solo_runtimeDiffSec}s" >> $global_logfile
+	echo "Difference to ETA: ${solo_runtimeToEta}s" >> $global_logfile
 elif [[ $main_mode -eq 2 ]] 
 then
 	echo "even"
