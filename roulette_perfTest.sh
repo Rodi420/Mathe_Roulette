@@ -15,36 +15,36 @@ func_perfTest (){
     perf_choice=0
     echo "$perf_delimiter" >> $perf_logfile
     perf_runtimeStart=$(date +%s%N)
-    while [[ $perf_turns>0 ]]
+    while [[ $perf_turns -gt 0 ]]
     do
        
-        let perf_turns=perf_turns-1
-        let perf_betsTotal=perf_betsTotal+1
+        perf_turns=$((perf_turns-1))
+        perf_betsTotal=$((perf_betsTotal+1))
 
         perf_winning=$(( $RANDOM % 36))
         if [[ $perf_winning = $perf_choice ]]
 		then
 			
 			#add winnings
-			let perf_budget=perf_budget+$((perf_wager * 35))
+			perf_budget=$((perf_budget+$((perf_wager * 35))))
 			#increase won counter to display at end (doenst display here)
-			let perf_betsWon=perf_betsWon+1
+			perf_betsWon=$((perf_betsWon+1))
 			#echo "Turn $perf_betsTotal" >> $perf_logfile
 			#echo "You Won: $((perf_wager * 35))" >> $perf_logfile
 			#echo "Current Balance: $perf_budget" >> $perf_logfile
             #optimized version of log write
-            echo "turn $perf_betsTotal / won: $((perf_wager * 35)) / balance: $perf_budget" >> $perf_logfile
-			echo "$perf_delimiter" >> $perf_logfile
+            echo "turn $perf_betsTotal / won: $((perf_wager * 35)) / balance: $perf_budget" >> "$perf_logfile"
+			echo "$perf_delimiter" >> "$perf_logfile"
 			
 
 		#if budget reaches 0 stop the game
 		else
-			if  [[ $perf_budget > 0 ]]
+			if  [[ $perf_budget -gt 0 ]]
 			then
-				let perf_budget=perf_budget-perf_wager
+				perf_budget=$((perf_budget-perf_wager))
 			else
             #its engineered to never run out of money but for consistency sake
-				let perf_budget=perf_budget-0
+				perf_budget=$((perf_budget-0))
 				break
 			fi
 		fi
@@ -56,11 +56,11 @@ func_perfTest (){
 		awk "BEGIN { print ($perf_runtimeDiff/1000000000) }"
 	)
     #echo "Your performance Score is: $perf_betsTotal bets per second" >> $perf_logfile
-    echo "Your Computer took ${perf_runtimeDiff}ns or ${perf_runtimeDiffSec}s to finish 10000 Turns" >> $perf_logfile
+    echo "Your Computer took ${perf_runtimeDiff}ns or ${perf_runtimeDiffSec}s to finish 10000 Turns" >> "$perf_logfile"
     perf_betsPerSec=$(
 		awk "BEGIN { print (10000/$perf_runtimeDiffSec) }"
 	)
-    echo "Your Performance score is: $perf_betsPerSec bets per second" >> $perf_logfile
+    echo "Your Performance score is: $perf_betsPerSec bets per second" >> "$perf_logfile"
 }
 
 
