@@ -1,6 +1,6 @@
 #!/bin/bash
 #rodrigo tavares
-#version 2.1
+#version 2.7
 #overhaul of entire script. remade from scratch with options, dynamic variables, modes and logging.
 
 #static variables
@@ -8,6 +8,7 @@
 #global_wager=10
 #global_turns=1000
 source ./roulette_perfTest.sh
+source ./roulette_func.sh
 
 global_logfile="roulette_logs/roulette_$(date +%Y-%m-%d_%H%M%S).log"
 perf_logfile="roulette_logs/roulette_perfTest_$(date +%Y-%m-%d_%H%M%S).log"
@@ -86,99 +87,59 @@ fi
 echo -e "\nWähle ein Spielmodus\n1. Einzelnummern\n2. Even\n3. Odd\n4. Row"
 read -r -p "Eingabe: " main_mode
 
+global_betsWon=0
+global_betsTotal=0
+global_runtimeStart=$(date +%s%N)
 if [[ $main_mode -eq 1 ]]
 then
 
 	#take input
 	echo ""
-	read -p "Auf welche Zahl willst du wetten? " solo_choice
+	read -p "Auf welche Zahl willst du wetten? " global_choice
 
-	#mode speficic variables
-	solo_budget=$global_budget
-	solo_betsWon=0
-	solo_betsTotal=0
-	solo_runtimeStart=$(date +%s%N)
+
 	#write log
 	echo "mode chosen: $main_mode" >> $global_logfile
-	echo "solo_budget = $solo_budget" >> $global_logfile
+	echo "global_budget = $global_budget" >> $global_logfile
 	echo "$global_delimiter" >> $global_logfile
 	
-	while [[ $global_turns -gt 0 ]] 
-	do
-		#reduce turns by 1
-		global_turns=$((global_turns-1))
-		#increase total bets counter to display at end
-		solo_betsTotal=$((solo_betsTotal+1))
+	#play the game
+	func_rouletteLoop
 
-		#get winning number
-		solo_winning=$(( $RANDOM % 36))
-		if [[ $solo_winning = "$solo_choice" ]]
-		then
-			
-			#add winnings
-			solo_budget=$((solo_budget+$((global_wager * 35))))
-			#increase won counter to display at end
-			solo_betsWon=$((solo_betsWon+1))
-			#write log
-			#echo "turn $solo_betsTotal" >> $global_logfile
-			#echo "won: $((global_wager * 35))" >> $global_logfile
-			#echo "balance: $solo_budget" >> $global_logfile
-			#optimized version of write log
-			echo "turn $solo_betsTotal / won: $((global_wager * 35)) / balance: $solo_budget" >> "$global_logfile"
-			echo "$global_delimiter" >> "$global_logfile"
-
-		#if budget reaches 0 stop the game
-		else
-			if  [[ $solo_budget -gt 0 ]]
-			then
-				solo_budget=$((solo_budget-global_wager))
-			else
-				solo_budget=$((solo_budget-0))
-				echo "you lost all your money after $solo_betsTotal bets." >> "$global_logfile"
-				break
-			fi
-		fi
-	done
-	#calculate percentage since bash cant do floating arithemetics
-	
-	solo_betsPrct=$(
-		awk "BEGIN {print (100/$solo_betsTotal)*$solo_betsWon}"
-	)
-	#end runtime
-	solo_runtimeEnd=$(date +%s%N)
-	#difference of start and end
-	solo_runtimeDiff=$(($solo_runtimeEnd - $solo_runtimeStart))
-	#convert to seconds
-	solo_runtimeDiffSec=$(
-		awk "BEGIN { print ($solo_runtimeDiff/1000000000) }"
-	)
-	
-	#show results
-	echo "Guthaben: $solo_budget"
-	echo "Gewinne: $(($solo_budget-$global_budget))"
-	echo "Du hast $solo_betsWon von $solo_betsTotal Wetten gewonnen. (${solo_betsPrct}%)"
-	echo "Programm wurde in ${solo_runtimeDiffSec}s ausgeführt"
-	#write log
-	
-	{
-	echo "Final Balance: $solo_budget"
-	echo "Profit Made: $(($solo_budget-$global_budget))"
-	echo "You won $solo_betsWon out of $solo_betsTotal bets. (${solo_betsPrct}%)"
-	echo "Program finished after ${solo_runtimeDiffSec}s"
-	} >> "$global_logfile"
-	#if test was done compare to eta time
-	if [[ $global_perfTestDone -eq 1 ]]
-	then
-		#difference from eta to runtime
-		solo_runtimeToEta=$(
-		awk "BEGIN { print ($solo_runtimeDiffSec-$global_perfEta) }"
-		)
-		#log
-		echo "Difference to ETA: ${solo_runtimeToEta}s" >> "$global_logfile"
-	fi
+	#end game
+	func_rouletteEnd
 elif [[ $main_mode -eq 2 ]] 
 then
+
 	echo "even"
+	echo "mode chosen: $main_mode" >> $global_logfile
+	echo "global_budget = $global_budget" >> $global_logfile
+	echo "$global_delimiter" >> $global_logfile
+	global_choice=(
+		"2"
+		"4"
+		"6"
+		"8"
+		"10"
+		"12"
+		"14"
+		"16"
+		"18"
+		"20"
+		"22"
+		"24"
+		"26"
+		"28"
+		"30"
+		"32"
+		"34"
+		"36"
+	)
+	#play the game
+	func_rouletteLoop
+
+	#end game
+	#func_rouletteEnd
 
 else
 	echo "error"
