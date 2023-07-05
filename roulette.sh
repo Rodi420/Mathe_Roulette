@@ -1,6 +1,6 @@
 #!/bin/bash
 #rodrigo tavares
-#version 2.7
+#version 2.7.1
 #overhaul of entire script. remade from scratch with options, dynamic variables, modes and logging.
 
 #static variables
@@ -36,6 +36,7 @@ echo -e "Willkommen bei Roulette. Definiere deine Standardwerte:"
 read -r -p "Dein Budget: " global_budget
 read -r -p "Dein Einsatz pro Spiel: " global_wager
 read -r -p "Wie viel mal willst du spielen? " global_turns
+global_budgetOri=$global_budget
 
 #write log
 {
@@ -92,7 +93,7 @@ global_betsTotal=0
 global_runtimeStart=$(date +%s%N)
 if [[ $main_mode -eq 1 ]]
 then
-
+	
 	#take input
 	echo ""
 	read -p "Auf welche Zahl willst du wetten? " global_choice
@@ -111,35 +112,15 @@ then
 elif [[ $main_mode -eq 2 ]] 
 then
 
-	echo "even"
 	echo "mode chosen: $main_mode" >> $global_logfile
 	echo "global_budget = $global_budget" >> $global_logfile
 	echo "$global_delimiter" >> $global_logfile
-	global_choice=(
-		"2"
-		"4"
-		"6"
-		"8"
-		"10"
-		"12"
-		"14"
-		"16"
-		"18"
-		"20"
-		"22"
-		"24"
-		"26"
-		"28"
-		"30"
-		"32"
-		"34"
-		"36"
-	)
+	global_choice=$(( 36 % 2 ))
 	#play the game
 	func_rouletteLoop
 
 	#end game
-	#func_rouletteEnd
+	func_rouletteEnd
 
 else
 	echo "error"

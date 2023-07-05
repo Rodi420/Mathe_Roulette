@@ -17,11 +17,10 @@ echo "global_turns = $global_turns"
 echo "$global_delimiter" 
 echo "END LOOP"
 } >> "$global_logfile"
-echo "${global_choice[*]}"
 
     while [[ $global_turns -gt 0 ]] 
 	do
-        echo "test"
+        #echo "test"
 		#reduce turns by 1
 		global_turns=$((global_turns-1))
 		#increase total bets counter to display at end
@@ -29,7 +28,7 @@ echo "${global_choice[*]}"
 
 		#get winning number
 		global_winning=$(( $RANDOM % 36))
-		if [[ $global_winning =~ "${global_choice[*]}" ]]
+		if [[ $global_winning -eq "${global_choice}" ]]
 		then
 			
 			#add winnings
@@ -73,14 +72,14 @@ func_rouletteEnd (){
 	
 	#show results
 	echo "Guthaben: $global_budget"
-	echo "Gewinne: $(($global_budget-$global_budget))"
+	echo "Gewinne: $(($global_budget-$global_budgetOri))"
 	echo "Du hast $global_betsWon von $global_betsTotal Wetten gewonnen. (${global_betsPrct}%)"
 	echo "Programm wurde in ${global_runtimeDiffSec}s ausgeführt"
 	#write log
 	
 	{
 	echo "Final Balance: $global_budget"
-	echo "Profit Made: $(($global_budget-$global_budget))"
+	echo "Profit Made: $(($global_budget-$global_budgetOri))"
 	echo "You won $global_betsWon out of $global_betsTotal bets. (${global_betsPrct}%)"
 	echo "Program finished after ${global_runtimeDiffSec}s"
 	} >> "$global_logfile"
