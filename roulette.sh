@@ -1,6 +1,6 @@
 #!/bin/bash
 # Rodrigo Tavares
-# Version 2.8
+# Version 2.9
 # Overhaul of entire script. remade from scratch with options, dynamic variables, modes and logging.
 
 # Static variables
@@ -29,12 +29,15 @@ fi
 
 # Start
 clear
+printf '%100s\n' | tr ' ' -
 echo -e "Willkommen bei Roulette. Definiere deine Standardwerte:"
+printf '%100s\n' | tr ' ' -
 
 # Define variables
 read -r -p "Dein Budget: " global_budget
 read -r -p "Dein Einsatz pro Spiel: " global_wager
 read -r -p "Wie viel mal willst du spielen? " global_turns
+printf '%100s\n' | tr ' ' -
 global_budgetOri=$global_budget
 
 # Write log
@@ -48,9 +51,17 @@ echo "$global_delimiter"
 } >> "$global_logfile"
 clear
 
+
+# Choose mode before perf test
+printf '%100s\n' | tr ' ' -
+echo -e "Wähle ein Spielmodus\n1. Einzelnummern\n2. Gerade Zahlen (Standard)\n3. Ungerade Zahlen\n4. Reihe von Zahlen"
+read -r -p "Eingabe: " main_mode
+
 # Ask for performance test
-echo -e "Willst du einen Performance Test durchführen?\n1. Ja\n2. Nein"
+printf '%100s\n' | tr ' ' -
+echo -e "Willst du einen Performance Test durchführen?\n1. Ja\n2. Nein (Standard)"
 read -r -p "Eingabe: " global_perfTest
+printf '%100s\n' | tr ' ' -
 
 # Do perf test
 if [[ $global_perfTest -eq 1 ]]; then
@@ -59,21 +70,25 @@ if [[ $global_perfTest -eq 1 ]]; then
 	echo "performance Test done. Resuming..." >> "$global_logfile"
 else
 	echo "performance Test not done. Resuming..." >> "$global_logfile"
-	# This variable value is called nowhere**
+	# This variable value is called nowhere
 	global_perfTestDone=0
 fi
 
 # Inform about long processing time
 if [[ $global_turns -gt 10000 ]]; then
+	#printf '%100s\n' | tr ' ' -
 	echo -e "Hinweis:\nDu hast mehr als 10'000 Spiele ausgewählt.\nEs kann länger dauern bis das Programm fertig ist!"
 	echo -e "more than 10000 Turns selected. Proceed with caution." >> "$global_logfile"
 else
 	echo -e "less than 10000 Turns selected. Proceed allowed." >> "$global_logfile"
 fi
 
+printf '%100s\n' | tr ' ' -
+
+# Do perf test after mode was chosen
 # Performance test was done
 if [[ $global_perfTestDone -eq 1 ]]; then
-	echo -e "\nEs wurde ein Performance Test durchgeführt."
+	echo -e "Es wurde ein Performance Test durchgeführt."
 	# Calculate eta runtime
 	global_perfEta=$(
 		awk "BEGIN { print ($global_turns/$perf_betsPerSec) }"
@@ -84,39 +99,74 @@ else
 	echo -e "Es wurde kein Performance Test durchgeführt."
 fi
 
-echo -e "\nWähle ein Spielmodus\n1. Einzelnummern\n2. Even\n3. Odd\n4. Row"
-read -r -p "Eingabe: " main_mode
+printf '%100s\n' | tr ' ' -
+echo -e "Fortfahren?\n1. Ja (Standard)\n2. Nein"
+read -r -p "Eingabe: " main_resume
+printf '%100s\n' | tr ' ' -
 
-global_betsWon=0
-global_betsTotal=0
-global_runtimeStart=$(date +%s%N)
+if [[ $main_resume -eq 2 ]]; then
+	exit 1
+fi
 
 # Write log
 {
 echo "mode chosen: $main_mode"
-echo "global_budget = $global_budget" 
 echo "$global_delimiter" 
 } >> "$global_logfile"
-if [[ $main_mode -eq 1 ]]; then
-	
-	# Take input
-	echo ""
-	read -p "Auf welche Zahl willst du wetten? " global_choice
 
-	# Play the game
-	func_rouletteLoop
+case $main_mode in
+	1)
+		# Take input
+		read -p "Auf welche Zahl willst du wetten? " global_choice
+		printf '%100s\n' | tr ' ' -
+		# Play the game
+		func_rouletteLoop
+		# End game
+		func_rouletteEnd
+		;;
+	2)
+		# Play the game
+		func_rouletteLoop
+		# End game
+		func_rouletteEnd
+		;;
+	3)
+		# Play the game
+		func_rouletteLoop
+		# End game
+		func_rouletteEnd
+		;;	
+	4)
+		# Take input
+		echo -e "Auf welche Reihe willst du wetten?\n1. 1-9 (Standard)\n2. 10-18\n3. 19-27\n4. 28-36"
+		read -p "Eingabe: " global_choice
 
-	# End game
-	func_rouletteEnd
+		if [[ $global_choice -eq 2 ]]; then
+			global_rowOne=10
+			global_rowTwo=18
+		elif [[ $global_choice -eq 3 ]]; then
+			global_rowOne=19
+			global_rowTwo=27
+		elif [[ $global_choice -eq 4 ]]; then
+			global_rowOne=28
+			global_rowTwo=36
+		else
+			global_rowOne=1
+			global_rowTwo=9
+		fi
 
-elif [[ $main_mode -eq 2 ]]; then
-
-	# Play the game
-	func_rouletteLoop
-
-	# End game
-	func_rouletteEnd
-
-else
-	echo "error"
-fi
+		printf '%100s\n' | tr ' ' -
+		# Play the game
+		func_rouletteLoop
+		# End game
+		func_rouletteEnd
+		;;	
+	*)
+		# Standard value option -> run "Even" mode
+		main_mode=2
+		# Play the game
+		func_rouletteLoop
+		# End game
+		func_rouletteEnd
+		;;
+esac
